@@ -314,8 +314,12 @@ static void Button_HandleSinglePress(uint8_t i, unsigned long currentTimestamp) 
 		return; // Still held: wait for release before deciding whether this was a long press or a gesture
 	}
 
-	// Handle volume buttons with repeat functionality
-	if (Cmd_Long == CMD_VOLUMEUP || Cmd_Long == CMD_VOLUMEDOWN) {
+	// Handle buttons with repeat functionality: volume steps and seek steps. A button that acts as a rotary
+	// modifier never gets here -- it returns above and fires its long action on release -- so a gesture that
+	// starts slightly late cannot trigger a repeated jump first.
+	bool const isRepeatable = (Cmd_Long == CMD_VOLUMEUP || Cmd_Long == CMD_VOLUMEDOWN ||
+	                           Cmd_Long == CMD_SEEK_FORWARDS || Cmd_Long == CMD_SEEK_BACKWARDS);
+	if (isRepeatable) {
 		if (pressDuration <= intervalToLongPress) {
 			return;
 		}
